@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useReducer, useEffect, createContext, useContext } from 'react';
 
-const BASE_URL = 'http://localhost:8000';
+// const BASE_URL = 'http://localhost:8000';
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const CitiesContext = createContext();
 
@@ -52,8 +53,10 @@ function CitiesProvider({ children }) {
     async function fetchCities() {
       try {
         dispatch({ type: 'loading' });
-        const res = await fetch(`${BASE_URL}/cities`);
-        const data = await res.json();
+        // const res = await fetch(`${BASE_URL}/cities`);
+        // const data = await res.json();
+        await delay(500);
+        const data = citiesData;
         dispatch({ type: 'cities/loaded', payload: data });
       } catch (error) {
         dispatch({ type: 'rejected', payload: 'There was an error loading the data...' });
@@ -68,27 +71,34 @@ function CitiesProvider({ children }) {
       if (id == currentCity.id) return;
       try {
         dispatch({ type: 'loading' });
-        const res = await fetch(`${BASE_URL}/cities/${id}`);
-        const data = await res.json();
+        // const res = await fetch(`${BASE_URL}/cities/${id}`);
+        // const data = await res.json();
+        await delay(500);
+        console.log('ID', id);
+        const data = citiesData.find(city => city.id == id);
+        console.log('Data', citiesData);
         dispatch({ type: 'city/loaded', payload: data });
       } catch (error) {
         dispatch({ type: 'rejected', payload: 'There was an error loading the data...' });
       }
     },
-    [currentCity.id]
+    [currentCity?.id]
   );
 
   async function createCity(newCity) {
     try {
       dispatch({ type: 'loading' });
-      const res = await fetch(`${BASE_URL}/cities/`, {
-        method: 'POST',
-        body: JSON.stringify(newCity),
-        header: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const cityData = await res.json();
+      // const res = await fetch(`${BASE_URL}/cities/`, {
+      //   method: 'POST',
+      //   body: JSON.stringify(newCity),
+      //   header: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
+      // const cityData = await res.json();
+      await delay(500);
+      const cityData = { ...newCity, id: Math.floor(Math.random() * 100000000) };
+      citiesData.push(cityData);
       dispatch({ type: 'city/created', payload: cityData });
     } catch (error) {
       dispatch({ type: 'rejected', payload: 'There was an error creating the data...' });
@@ -98,9 +108,11 @@ function CitiesProvider({ children }) {
   async function deleteCity(id) {
     try {
       dispatch({ type: 'loading' });
-      await fetch(`${BASE_URL}/cities/${id}`, {
-        method: 'DELETE',
-      });
+      // await fetch(`${BASE_URL}/cities/${id}`, {
+      //   method: 'DELETE',
+      // });
+      await delay(500);
+      citiesData.filter(city => city.id !== id);
       dispatch({ type: 'city/deleted', payload: id });
     } catch (error) {
       dispatch({ type: 'rejected', payload: 'There was an error deleting the city...' });
@@ -131,3 +143,42 @@ function useCities() {
 }
 
 export { useCities, CitiesProvider };
+
+const citiesData = [
+  {
+    cityName: 'Lisbon',
+    country: 'Portugal',
+    emoji: '🇵🇹',
+    date: '2027-10-31T15:59:59.138Z',
+    notes: 'My favorite city so far!',
+    position: {
+      lat: 38.727881642324164,
+      lng: -9.140900099907554,
+    },
+    id: 73930385,
+  },
+  {
+    cityName: 'Madrid',
+    country: 'Spain',
+    emoji: '🇪🇸',
+    date: '2027-07-15T08:22:53.976Z',
+    notes: '',
+    position: {
+      lat: 40.46635901755316,
+      lng: -3.7133789062500004,
+    },
+    id: 17806751,
+  },
+  {
+    cityName: 'Berlin',
+    country: 'Germany',
+    emoji: '🇩🇪',
+    date: '2027-02-12T09:24:11.863Z',
+    notes: 'Amazing 😃',
+    position: {
+      lat: 52.53586782505711,
+      lng: 13.376933665713324,
+    },
+    id: 98443197,
+  },
+];
